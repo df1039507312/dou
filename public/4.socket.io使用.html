@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    
+    <script src="javascripts/socket.io.js"></script>
+    <script>
+        var socket = io.connect('http://192.168.0.222:8000');
+
+        // 注册的事件，在服务器有响应的时候触发
+        socket.on('a',function(data){
+            console.log(data);//来自于服务器的数据
+        })
+
+        // 触发事件，给服务器发送数据
+        socket.emit('b','aaa');//把数据 aaa发送给服务器
+    </script>
+
+</body>
+</html>

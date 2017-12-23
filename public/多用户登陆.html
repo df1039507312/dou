@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        .ball{
+            width:50px; height:50px;
+            border-radius: 50%;
+            background-color: red;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <div class="group">
+            <label for="username">用户名</label>
+            <input type="text" id="user" />
+        </div>
+        <div class="group">
+            <label for="userpwd">密码</label>
+            <input type="password" id="pwd" />
+        </div>
+        <div class="group">
+            <input type="button" id="btn" value="登陆" />
+        </div>
+        <div class="ball"></div>
+    </div>
+    <script src="javascripts/jquery.min.js"></script>
+    <script>
+        var loadUrl = 'http://localhost:3000/users/load';
+        var watchUrl = 'http://localhost:3000/users/watchlong';//长链接的接口
+        var loading = '';
+        $('#btn').on('click',function(){
+            var userVal = $('#user').val();
+            var pwdVal = $('#pwd').val();
+            $.ajax({
+                url:loadUrl,
+                type:'POST',
+                data:{
+                    username:userVal,
+                    userpwd:pwdVal
+                },
+                success:function(data){
+                    console.log(data);
+                    if(data.status==='ok'){
+                        alert('登陆成功');
+                        loading = data.loading;
+                        $('.ball').css({backgroundColor:'green'});
+                        // 此时是登陆成功,多次发送验证，判断是否在别处登陆
+
+                        $.get(watchUrl,{username:userVal,loading:loading},function(data){
+                            if(data.status==='no'){
+                                alert('已经退出登录');
+                                $('.ball').css({backgroundColor:'red'});
+                            }
+                        })
+                    }
+                }
+            })
+        })
+        
+    </script>
+</body>
+</html>

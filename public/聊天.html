@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        .window{
+            width:300px; height:400px;
+            float:left;
+            border:1px solid red;
+            margin-left:50px;
+        }
+        .show{
+            height:300px;
+            overflow-y:auto;
+        }   
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="window" v-for="item in groups">
+            <div class="show">
+                <ul>
+                    <li v-for="ali in item.chatList">
+                        {{ali.username}}:{{ali.content}}
+                    </li>
+                </ul>
+            </div>
+            <div v-show="!item.isChat">
+                <input type="text" placeholder="请输入昵称" v-model="item.username"/>
+                <input type="button" value="加入聊天" @click="createChat(item)">
+            </div>
+            
+            <div class="tool" v-show="item.isChat">
+                <span>{{item.username}}</span>
+                <input type="text" v-model="item.val">
+                <input type="button" class="btn" value="send" @click="sendMsg(item)">
+                <input type="button" class="btn" value="关闭聊天" @click="leaveChat(item)">
+            </div> 
+        </div>
+    </div>
+    <script src="javascripts/vue.js"></script>
+    <script>
+        var vm  = new Vue({
+            el:'#app',
+            data:{
+                groups:[
+                    {isChat:false,socket:'',val:'',chatList:[],username:''},
+                    {isChat:false,socket:'',val:'',chatList:[],username:''}
+                ]
+            },
+            methods:{
+                createChat:function(item){
+                    item.isChat=!item.isChat;
+                    item.socket=new WebSocket('ws://192.168.0.222:8000');
+                    item.socket.onopen=function(){
+                        console.log(item.socket.readyState);
+                        item.socket.onmessage=function(ev){
+                            console.log(ev.data);
+                            var oData=JSON.parse(ev.data);
+                            item.chatList.push(oData);  
+                        }
+                    }
+                    item.socket.onclose=function(){
+                        console.log(item.socket.readyState);
+                    }
+                },
+                leaveChat:function(item){
+                    item.isChat=!item.isChat;
+                    item.socket.close();    
+                },
+                sendMsg:function(item){
+                    item.socket.send(JSON.stringify({username:item.username,content:item.val}));
+                    item.val='';
+                }
+            }
+
+        })
+    </script>
+</body>
+</html>

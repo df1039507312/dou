@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <input type="text" id="content" />
+    <input type="button" id="btn" value="send"/>
+    <ul id="list">
+
+    </ul>
+
+    <script>
+    
+        // 建立一个ws链接
+        var socket = new WebSocket('ws://192.168.0.222:8000');
+        // 检测链接是否成功
+        socket.onopen=function(){
+            console.log(this.readyState);
+            socket.onmessage=function(ev){
+                //ev.data 来自于服务端的数据
+                var oLi=document.createElement('li');
+                oLi.innerHTML=ev.data;//把li的节点的内容变成数据
+                oList.appendChild(oLi);
+            }
+        }
+        var oCon = document.getElementById('content');
+        var oBtn = document.getElementById('btn');
+        var oList = document.getElementById('list');
+        oBtn.onclick=function(){
+
+            socket.send(oCon.value);//把输入框中的数据发送给服务器；
+        }
+
+
+    </script>
+</body>
+</html>

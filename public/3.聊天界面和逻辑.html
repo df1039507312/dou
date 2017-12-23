@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        *{margin:0; padding:0;}
+        li{list-style: none;}
+        input[type=text]{
+            display:block;
+            border:2px solid skyblue;
+            outline: none;
+            width:300px;
+            height:30px;
+            padding-left:10px;
+            margin:0 auto;
+
+        }
+        .window{
+            width:80%;
+            height:400px;
+            float:left;
+            border:1px solid red;
+            margin-left:50px;
+        }
+        .show{
+            height:300px;
+            overflow-y:auto;
+        }   
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="window" v-for="item in groups">
+            <div class="show">
+                <ul>
+                    <li v-for="ali in item.chatList" :style="{'text-align':ali.h}">
+                        {{ali.username}}:{{ali.content}}
+                    </li>
+                </ul>
+            </div>
+
+            <div v-show="!item.isChat">
+                <input type="text" placeholder="请输入昵称" v-model="item.localusername"/>
+                <input type="button" value="加入聊天" @click="createChat(item)">
+            </div>
+            
+            <div class="tool" v-show="item.isChat">
+                <span>{{item.username}}</span>
+                <input type="text" v-model="item.localval">
+                <input type="button" class="btn" value="send" @click="sendMsg(item)">
+                <input type="button" class="btn" value="关闭聊天" @click="leaveChat(item)">
+            </div> 
+        </div>
+    </div>
+    <script src="javascripts/vue.js"></script>
+    <script>
+        var vm  = new Vue({
+            el:'#app',
+            data:{
+                groups:[//groups中的每个对象代表一个window
+                /*
+                    isChat 聊天和输入昵称的切换，
+                    sokcet 表示实例的对象
+                    val 表示聊天输入的内容
+                    chatList 表示聊天的记录
+                    username  本次的昵称
+                */
+                    {isChat:false,socket:'',val:'',localval:'',chatList:[],username:'',localusername:''}
+                ]
+            },
+            methods:{
+                createChat:function(item){
+                    item.username=item.localusername;
+                    if(item.username===''){
+                        alert('请输入用户名');
+                        return;
+                    }
+                    item.isChat=!item.isChat;//切换显示
+                    item.localusername='';
+                    // 此时应该和服务器建立连接
+                    item.socket = new WebSocket('ws://192.168.0.222:8000');
+                    item.socket.onopen=function(){
+                        console.log(this.readyState);
+
+                        // 接受来自于服务器的数据
+                        this.onmessage=function(ev){
+                            console.log(ev.data);
+                            var oData = JSON.parse(ev.data);
+                            oData.h='left';
+                            item.chatList.push(oData);
+                        }
+                    }
+                    item.socket.onclose=function(){//链接关闭后触发
+                        console.log(this.readyState);
+
+                    }
+                },
+                leaveChat:function(item){
+                    item.isChat=!item.isChat;//切换显示  
+                    item.socket.close();//关闭和服务器的链接
+                    
+                },
+                sendMsg:function(item){
+                    item.val=item.localval;
+                    item.socket.send(JSON.stringify({username:item.username,content:item.val}));
+                    
+                    
+                    item.chatList.push({username:item.username,content:item.val,h:'right'});
+                    item.localval='';
+
+                }
+            }
+
+        })
+    </script>
+</body>
+</html>

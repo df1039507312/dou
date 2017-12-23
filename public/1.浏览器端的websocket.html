@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    
+    <script>
+        // 创建实例
+        var wss = new WebSocket('ws://192.168.0.222:8000');
+        console.log(wss.readyState);
+
+        wss.onopen=function(){
+            console.log(wss.readyState);
+            wss.send('我刚链接成功');//把数据发给了服务器
+
+            wss.onmessage=function(ev){
+                console.log(ev.data);//来自于服务端的数据
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        .box{
+            width:200px; height:200px;
+            background-color: red;
+            cursor: pointer;
+            position: absolute;
+            left:0; top:0;
+        }
+    </style>
+</head>
+<body>
+    <div class="box" id="box">
+
+    </div>
+    <input type="text" id="write"/>
+    <input type="button" id="send" value="send">
+    <script src="javascripts/socket.io.js"></script>
+    <script>
+        let ws = io.connect('http://192.168.0.222:8020');
+        var oBox = document.getElementById('box');
+        ws.on('a',function(data){
+            console.log(data);
+            oBox.style.left=data.x+'px';
+            oBox.style.top=data.y+'px';
+        })
+        
+       
+        
+    </script>
+</body>
+</html>
